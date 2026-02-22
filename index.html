@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Tech Archive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        /* Default Dark Theme */
+        --color-accent: #ccff00;
+        --color-accent-rgb: 204, 255, 0;
+        --bg-main: #050505;
+        --bg-secondary: #0a0a0a;
+        --bg-panel: #080808;
+        --text-main: #e5e5e5;
+        --text-muted: #888888;
+        --text-dim: #555555;
+        --border-main: #333333;
+        --grid-line: #1a1a1a;
+        
+        /* Animation Blend Modes */
+        --blend-mode-overlay: screen;
+        --shadow-color: rgba(204, 255, 0, 0.8);
+      }
+
+      [data-theme='light'] {
+        /* Adjusted Green for Light Mode (Darker/Olive for contrast) */
+        --color-accent: #527000;
+        --color-accent-rgb: 82, 112, 0;
+        --bg-main: #e0e0e0;
+        --bg-secondary: #f0f0f0;
+        --bg-panel: #ffffff;
+        --text-main: #111111;
+        --text-muted: #555555;
+        --text-dim: #999999;
+        --border-main: #b0b0b0;
+        --grid-line: #cccccc;
+
+        /* Light Mode Blend adjustments */
+        --blend-mode-overlay: multiply;
+        --shadow-color: rgba(82, 112, 0, 0.4);
+      }
+
+      /* Prevent white flash on load and handle FOUC */
+      html, body {
+        background-color: var(--bg-main);
+        color: var(--text-main);
+      }
+      
+      body {
+        font-family: 'Space Grotesk', sans-serif;
+        overflow-x: hidden;
+        margin: 0;
+      }
+      
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      
+      /* Theme-aware utilities */
+      .mix-blend-theme {
+        mix-blend-mode: var(--blend-mode-overlay);
+      }
+
+      /* Typography Utilities */
+      .text-stroke {
+        -webkit-text-stroke: 1px currentColor;
+        color: transparent;
+      }
+      @media (min-width: 768px) {
+        .text-stroke {
+          -webkit-text-stroke: 2px currentColor;
+        }
+      }
+
+      /* Custom Scrollbar - GLOBALLY HIDDEN */
+      ::-webkit-scrollbar {
+        width: 0px;
+        height: 0px;
+        background: transparent;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: transparent;
+        border: none;
+      }
+      
+      /* Utilities */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
+      /* Animations */
+      
+      /* Slide In Down for Sub-Nav */
+      @keyframes slide-in-down {
+        0% { opacity: 0; transform: translateY(-100%); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-slide-in-down {
+        animation: slide-in-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      /* GPU Accelerated Marquee */
+      @keyframes marquee {
+        0% { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(-50%, 0, 0); }
+      }
+      .animate-marquee {
+        animation: marquee 30s linear infinite;
+      }
+      
+      @keyframes scanline {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+      }
+      .animate-scanline {
+        animation: scanline 4s linear infinite;
+      }
+      
+      @keyframes scan-vertical {
+        0% { top: -10%; opacity: 0; }
+        5% { opacity: 1; }
+        40% { top: 110%; opacity: 1; }
+        45% { top: 110%; opacity: 0; }
+        100% { top: 110%; opacity: 0; }
+      }
+
+      @keyframes glitch {
+        0% { clip-path: inset(40% 0 61% 0); transform: translate(-2px, 2px); }
+        20% { clip-path: inset(92% 0 1% 0); transform: translate(2px, -2px); }
+        40% { clip-path: inset(43% 0 1% 0); transform: translate(-2px, 2px); }
+        60% { clip-path: inset(25% 0 58% 0); transform: translate(2px, -2px); }
+        80% { clip-path: inset(54% 0 7% 0); transform: translate(-2px, 2px); }
+        100% { clip-path: inset(58% 0 43% 0); transform: translate(2px, -2px); }
+      }
+      .glitch-hover:hover {
+        animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+        color: var(--color-accent);
+      }
+
+      /* Grid Background Pattern - Updated for Theme */
+      .bg-grid-pattern {
+        background-image: 
+          linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      /* Simple Rotation Animations */
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes spin-ultra-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes spin-reverse-slow {
+        from { transform: rotate(360deg); }
+        to { transform: rotate(0deg); }
+      }
+      .animate-spin-slow {
+        animation: spin-slow 10s linear infinite;
+      }
+      .animate-spin-ultra-slow {
+        animation: spin-slow 60s linear infinite;
+      }
+      .animate-reverse-spin-slow {
+        animation: spin-reverse-slow 40s linear infinite;
+      }
+      .animate-spin-reverse-slower {
+        animation: spin-reverse-slow 60s linear infinite;
+      }
+      
+      @keyframes pulse-slow {
+        0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.1); }
+      }
+      .animate-pulse-slow {
+        animation: pulse-slow 5s ease-in-out infinite;
+      }
+
+      /* 3D CUBE ANIMATION */
+      .cube-scene {
+        perspective: 600px;
+      }
+      .cube {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        animation: rotate-cube 10s infinite linear;
+      }
+      .cube-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--color-accent);
+        opacity: 0.6;
+        background: rgba(var(--color-accent-rgb), 0.05);
+      }
+      /* Assuming a 40px cube (translateZ = 20px) */
+      .cube-face-front  { transform: rotateY(  0deg) translateZ(20px); }
+      .cube-face-right  { transform: rotateY( 90deg) translateZ(20px); }
+      .cube-face-back   { transform: rotateY(180deg) translateZ(20px); }
+      .cube-face-left   { transform: rotateY(-90deg) translateZ(20px); }
+      .cube-face-top    { transform: rotateX( 90deg) translateZ(20px); }
+      .cube-face-bottom { transform: rotateX(-90deg) translateZ(20px); }
+
+      @keyframes rotate-cube {
+        0%   { transform: rotateX(0deg) rotateY(0deg); }
+        100% { transform: rotateX(360deg) rotateY(360deg); }
+      }
+
+      /* 
+         OPTIMIZED NEON IGNITION 
+         - Removed drop-shadow to fix GPU performance issues.
+         - Uses opacity and text-stroke-color to simulate flickering.
+      */
+      @keyframes neon-ignition {
+        0%, 1.7% {
+          opacity: 0.2;
+          -webkit-text-stroke-color: rgba(var(--color-accent-rgb), 0.2);
+        }
+
+        1.8%, 3.5% {
+          opacity: 1;
+          -webkit-text-stroke-color: var(--color-accent);
+        }
+
+        3.6%, 4.4% {
+          opacity: 0.2;
+          -webkit-text-stroke-color: rgba(var(--color-accent-rgb), 0.2);
+        }
+
+        4.5%, 6.2% {
+          opacity: 1;
+          -webkit-text-stroke-color: var(--color-accent);
+        }
+
+        6.3%, 11.5% {
+          opacity: 0.2;
+          -webkit-text-stroke-color: rgba(var(--color-accent-rgb), 0.2);
+        }
+        
+        11.6%, 100% {
+          opacity: 1;
+          -webkit-text-stroke-color: var(--color-accent);
+        }
+      }
+      .animate-neon-ignition {
+        animation: neon-ignition 5.65s linear infinite;
+      }
+
+      @keyframes grid-pan {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 40px 40px; }
+      }
+      .animate-grid-pan {
+        animation: grid-pan 4s linear infinite;
+      }
+
+      /* GPU Optimized Grid Pan (Transform instead of background-position) */
+      @keyframes grid-pan-gpu {
+        0% { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(40px, 40px, 0); }
+      }
+      .animate-grid-pan-gpu {
+        animation: grid-pan-gpu 4s linear infinite;
+      }
+
+      /* 
+         COLD BOOT PROTOCOL - DUAL SHUTTER SYSTEM
+      */
+      
+      @keyframes line-draw {
+        0% { clip-path: inset(0 50% 0 50%); }
+        100% { clip-path: inset(0 0 0 0); }
+      }
+      .animate-line-draw {
+        animation: line-draw 0.7s cubic-bezier(0.1, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes shutter-top {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-101%); }
+      }
+      .animate-shutter-top {
+        animation: shutter-top 1.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+      }
+
+      @keyframes shutter-bottom {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(101%); }
+      }
+      .animate-shutter-bottom {
+        animation: shutter-bottom 1.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+      }
+      
+      @keyframes border-restore {
+        to { border-color: var(--border-main); }
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      /* Phase 2: HUD Snap */
+      @keyframes hud-snap {
+        0% { opacity: 0; }
+        25% { opacity: 1; }
+        50% { opacity: 0; }
+        75% { opacity: 1; }
+        100% { opacity: 1; }
+      }
+      .animate-hud-snap {
+        animation: hud-snap 0.3s steps(1) forwards;
+      }
+
+      /* Phase 3: Core Ignition */
+      @keyframes core-flash {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.1); background-color: var(--color-accent); }
+        10% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); background-color: #ffffff; box-shadow: 0 0 100px 50px rgba(255,255,255,0.8); }
+        100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); background-color: var(--color-accent); box-shadow: 0 0 40px 10px var(--shadow-color); }
+      }
+      
+      /* Phase 4: Slide Up with Motion Blur */
+      @keyframes blur-slide-up {
+        0% { transform: translateY(100%); opacity: 0; filter: blur(10px); }
+        60% { filter: blur(0px); }
+        100% { transform: translateY(0); opacity: 1; filter: blur(0px); }
+      }
+
+      /* Phase 4: Typewriter */
+      @keyframes typewriter {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+
+      /* LED Animations */
+      @keyframes led-pulse {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 1; box-shadow: 0 0 3px currentColor; }
+      }
+
+      /* Digital Noise / Flicker - Cheaper than smooth interpolation */
+      @keyframes led-noise {
+        0%, 100% { opacity: 1; }
+        10% { opacity: 0.2; }
+        25% { opacity: 1; }
+        35% { opacity: 0.1; }
+        60% { opacity: 1; }
+        80% { opacity: 0.3; }
+      }
+      
+      /* New: Horizontal Hex Stream Slide */
+      @keyframes slide-hex {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+      .animate-slide-hex {
+        animation: slide-hex 10s linear infinite;
+      }
+
+      /* 
+         SYSTEM BOOT SEQUENCE
+      */
+      
+      @keyframes sys-boot-slide-in {
+        0% { transform: translateX(-20px); opacity: 0; clip-path: inset(0 100% 0 0); }
+        100% { transform: translateX(0); opacity: 1; clip-path: inset(0 0 0 0); }
+      }
+
+      /* PHYSICAL HARDWARE STARTUP */
+      @keyframes text-boot {
+        0% { color: #222; text-shadow: none; }
+        20% { color: var(--text-main); text-shadow: 0 0 8px var(--color-accent); }
+        40% { color: #222; text-shadow: none; }
+        50% { color: var(--text-main); text-shadow: 0 0 8px var(--color-accent); }
+        80% { color: var(--text-main); text-shadow: 0 0 12px var(--color-accent); }
+        100% { color: var(--text-main); text-shadow: 0 0 2px var(--color-accent); }
+      }
+
+      @keyframes led-on {
+        0% { opacity: 0; filter: blur(2px); }
+        20% { opacity: 1; filter: blur(0px); }
+        40% { opacity: 0.2; }
+        60% { opacity: 1; }
+        100% { opacity: 0.8; }
+      }
+
+      /* NEW: Hardware LED Sequences */
+      
+      /* 1. POWER (RED) - Solid ON with initial flicker */
+      @keyframes led-pwr-seq {
+        0% { background-color: #330000; box-shadow: none; }
+        5% { background-color: #ff0000; box-shadow: 0 0 8px #ff0000; } /* ON SPIKE */
+        8% { background-color: #550000; box-shadow: none; } /* DIP */
+        12% { background-color: #ff0000; box-shadow: 0 0 4px #ff0000; } /* STABILIZE */
+        100% { background-color: #ff0000; box-shadow: 0 0 4px #ff0000; } /* HOLD */
+      }
+
+      /* 2. DATA (AMBER/YELLOW) - Erratic activity */
+      @keyframes led-data-seq {
+        0% { background-color: #332200; box-shadow: none; }
+        15% { background-color: #332200; box-shadow: none; } /* Wait */
+        16% { background-color: #ffaa00; box-shadow: 0 0 6px #ffaa00; } /* BLINK */
+        20% { background-color: #332200; box-shadow: none; }
+        22% { background-color: #ffaa00; box-shadow: 0 0 6px #ffaa00; }
+        24% { background-color: #332200; box-shadow: none; }
+        40% { background-color: #332200; box-shadow: none; }
+        42% { background-color: #ffaa00; box-shadow: 0 0 6px #ffaa00; } /* BURST */
+        44% { background-color: #ffaa00; box-shadow: 0 0 6px #ffaa00; }
+        45% { background-color: #332200; box-shadow: none; }
+        60% { background-color: #ffaa00; box-shadow: 0 0 6px #ffaa00; }
+        61% { background-color: #332200; box-shadow: none; }
+        100% { background-color: #332200; box-shadow: none; }
+      }
+
+      /* 3. NETWORK (BLUE) - Rhythmic Heartbeat */
+      @keyframes led-net-seq {
+        0% { background-color: #001133; box-shadow: none; }
+        30% { background-color: #001133; box-shadow: none; }
+        35% { background-color: #00aaff; box-shadow: 0 0 6px #00aaff; } /* BEAT */
+        40% { background-color: #001133; box-shadow: none; }
+        100% { background-color: #001133; box-shadow: none; }
+      }
+
+      /* SENSOR BLINK (Global) */
+      @keyframes sensor-blink {
+        0% { opacity: 0.3; }
+        20% { opacity: 1; text-shadow: 0 0 4px currentColor; }
+        40% { opacity: 0.3; }
+        60% { opacity: 1; text-shadow: 0 0 4px currentColor; }
+        100% { opacity: 1; text-shadow: none; }
+      }
+
+      /* --- HERO ANIMATIONS (Consolidated) --- */
+      @keyframes cube-enter {
+          0% { transform: scale(0) rotateX(45deg) rotateY(45deg); opacity: 0; }
+          100% { transform: scale(1) rotateX(0deg) rotateY(0deg); opacity: 1; }
+      }
+
+      @keyframes cube-pop-in {
+          0% { transform: scale(0); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+      }
+      
+      @keyframes scan-beam {
+          0% { top: 0%; opacity: 0; }
+          50% { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+      }
+
+      @keyframes line-draw-right {
+          0% { width: 0; }
+          100% { width: 100%; }
+      }
+
+      @keyframes blink-in {
+          0% { opacity: 0; }
+          20% { opacity: 1; }
+          40% { opacity: 0; }
+          60% { opacity: 1; }
+          80% { opacity: 0; }
+          100% { opacity: 1; }
+      }
+
+      @keyframes glitch-word {
+          0% { opacity: 1; color: var(--text-muted); text-shadow: none; }
+          1% { opacity: 0; transform: translate(2px,0); }
+          3% { opacity: 1; color: var(--color-accent); text-shadow: 0 0 8px var(--color-accent); transform: translate(-2px,0); }
+          4% { opacity: 0; }
+          5% { opacity: 1; color: var(--color-accent); text-shadow: 0 0 8px var(--color-accent); transform: translate(0,0); }
+          95% { opacity: 1; color: var(--color-accent); text-shadow: 0 0 8px var(--color-accent); }
+          96% { opacity: 0; transform: translate(-2px,0); }
+          98% { opacity: 1; color: var(--text-muted); text-shadow: none; }
+          100% { opacity: 1; color: var(--text-muted); text-shadow: none; }
+      }
+
+      .animate-glitch-word {
+          animation: glitch-word 2.5s linear forwards;
+          display: inline-block;
+      }
+
+      .holo-face {
+          border: 1px solid var(--color-accent);
+          background: rgba(var(--color-accent-rgb), 0.1);
+          box-shadow: 0 0 5px rgba(var(--color-accent-rgb), 0.1) inset;
+      }
+      
+      .animate-cube-enter {
+          animation: cube-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      .wireframe-face {
+          background: transparent;
+          border: 1px solid currentColor;
+          box-sizing: border-box; 
+      }
+
+      @keyframes led-turn-on {
+          0% { opacity: 0; background-color: var(--bg-secondary); }
+          50% { opacity: 1; background-color: currentColor; box-shadow: 0 0 8px currentColor; }
+          100% { opacity: 1; background-color: currentColor; box-shadow: none; }
+      }
+
+      @keyframes binary-blink {
+          0%, 49% { opacity: 0.2; background-color: var(--bg-secondary); box-shadow: none; }
+          50%, 100% { opacity: 1; background-color: currentColor; box-shadow: 0 0 6px currentColor; }
+      }
+      
+      .logo-path {
+          fill: transparent;
+          stroke: currentColor;
+          stroke-width: 0.8px;
+          stroke-dasharray: 1;
+          stroke-dashoffset: 1;
+          animation: logo-draw 4s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+          animation-delay: 0.5s;
+      }
+
+      @keyframes logo-draw {
+          0% { stroke-dashoffset: 1; fill: transparent; stroke-width: 0.8px; }
+          40% { stroke-dashoffset: 0; fill: transparent; stroke-width: 0.8px; }
+          60% { fill: transparent; stroke-width: 0.8px; }
+          100% { stroke-dashoffset: 0; fill: currentColor; stroke-width: 0px; }
+      }
+
+      @keyframes pendulum {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(calc(-100% + 100cqi), 0, 0); }
+      }
+
+      /* LOGO FILTERS */
+      .logo-natural { filter: none; transition: filter 0.3s ease; }
+      .logo-invert { filter: invert(1); transition: filter 0.3s ease; }
+      .logo-thinkpad, .logo-red-invert { filter: invert(1) hue-rotate(180deg); transition: filter 0.3s ease; }
+      .logo-white { filter: brightness(0) invert(1); transition: filter 0.3s ease; }
+      
+      [data-theme='light'] .logo-thinkpad, 
+      [data-theme='light'] .logo-red-invert, 
+      [data-theme='light'] .logo-invert, 
+      [data-theme='light'] .logo-white { filter: none; }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "framer-motion": "https://esm.sh/framer-motion@11.0.8?external=react,react-dom"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
